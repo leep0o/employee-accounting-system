@@ -2,84 +2,144 @@
 
 namespace App\Http\Controllers;
 
-use App\Company;
+use App\Models\Position;
 use Illuminate\Http\Request;
+use App\Services\CompanyService;
+use App\Http\Requests\ShowCompanyRequest;
+use App\Http\Requests\StoreCommentRequest;
+use App\Http\Requests\StoreCompanyRequest;
+use App\Http\Requests\StoreEmployeeRequest;
+use App\Http\Requests\DeleteEmployeeRequest;
+
 
 class CompanyController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * @var CompanyService
      */
-    public function index()
+    private $companyService;
+
+    /**
+     * CompanyController constructor.
+     * @param CompanyService $companyService
+     */
+    public function __construct(CompanyService $companyService)
     {
-        //
+        $this->companyService = $companyService;
     }
 
     /**
-     * Show the form for creating a new resource.
+     * List of companies
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
      */
-    public function create()
+    public function companyList()
     {
-        //
+        return view('welcome', [
+            'companies' => $this->companyService->companyList()
+        ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Show company
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @param ShowCompanyRequest $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function store(Request $request)
+    public function showCompany(ShowCompanyRequest $request)
     {
-        //
+        return view('company', [
+            'company' => $this->companyService->showCompany($request->id)
+        ]);
     }
 
     /**
-     * Display the specified resource.
+     * Update data company
      *
-     * @param  \App\Company  $company
-     * @return \Illuminate\Http\Response
+     * @param StoreCompanyRequest $request
+     * @return \Illuminate\Http\RedirectResponse
      */
-    public function show(Company $company)
+    public function storeCompany(StoreCompanyRequest $request)
     {
-        //
+        $this->companyService->storeCompany($request);
+
+        return redirect()->back();
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Delete company
      *
-     * @param  \App\Company  $company
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      */
-    public function edit(Company $company)
+    public function deleteCompany()
     {
-        //
+        $this->companyService->deleteCompany();
+
+        return redirect('/');
     }
 
     /**
-     * Update the specified resource in storage.
+     * Add employee
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Company  $company
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function update(Request $request, Company $company)
+    public function addEmployee()
     {
-        //
+        return view('formEmployee', [
+            'positions' => Position::all()->pluck('name', 'id')
+        ]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Edit employee data
      *
-     * @param  \App\Company  $company
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function destroy(Company $company)
+    public function editEmployee(Request $request)
     {
-        //
+        return view('formEmployee', [
+            'user' =>  $this->companyService->getEmployee($request->id),
+            'positions' => Position::all()->pluck('name', 'id'),
+        ]);
+    }
+
+    /**
+     * Store employee data
+     *
+     * @param StoreEmployeeRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function storeEmployee(StoreEmployeeRequest $request)
+    {
+        $this->companyService->storeEmployee($request->all());
+
+        return redirect()->route('home');
+    }
+
+    /**
+     * Delete employee
+     *
+     * @param DeleteEmployeeRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function deleteEmployee(DeleteEmployeeRequest $request)
+    {
+        $this->companyService->deleteEmployee($request->id);
+
+        return redirect()->back();
+    }
+
+    /**
+     * Add comment
+     *
+     * @param StoreCommentRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function addComment(StoreCommentRequest $request)
+    {
+        $this->companyService->addComment($request->all());
+
+        return redirect()->back();
     }
 }

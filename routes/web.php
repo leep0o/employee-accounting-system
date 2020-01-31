@@ -11,10 +11,23 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::middleware(['auth'])->group(function () {
+    // company
+    Route::get('/home', 'HomeController@index')->name('home');
+    Route::post('/company/store', 'CompanyController@storeCompany')->name('storeCompany');
+    Route::post('/company/delete', 'CompanyController@deleteCompany')->name('deleteCompany');
+
+    // employee
+    Route::get('/company/add-employee', 'CompanyController@addEmployee')->name('addEmployee');
+    Route::get('/company/edit-employee/{id}', 'CompanyController@editEmployee')->name('editEmployee');
+    Route::post('/company/store-employee', 'CompanyController@storeEmployee')->name('storeEmployee');
+    Route::post('/company/delete-employee', 'CompanyController@deleteEmployee')->name('deleteEmployee');
+
+    // add comment
+    Route::post('/company/add-comment', 'CompanyController@addComment')->name('addComment');
+});
+
+Route::get('/', 'CompanyController@companyList');
+Route::get('/company/{id}', 'CompanyController@showCompany')->name('company');

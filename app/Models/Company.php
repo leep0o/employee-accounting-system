@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Notifications\Notifiable;
+use Spatie\MediaLibrary\HasMedia\HasMedia;
+use Spatie\MediaLibrary\HasMedia\HasMediaTrait;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class Company extends Authenticatable
+class Company extends Authenticatable implements HasMedia
 {
-    use Notifiable;
+    use Notifiable,
+        HasMediaTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -44,5 +47,25 @@ class Company extends Authenticatable
     public function users()
     {
         return $this->hasMany(User::class);
+    }
+
+    /**
+     * Relation Comment model
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    /**
+     * Accessor: url image company
+     *
+     * @return string|null
+     */
+    public function getUrlImageAttribute()
+    {
+        return $this->getFirstMediaUrl('image') ?: null;
     }
 }

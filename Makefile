@@ -3,6 +3,3 @@ i:
 
 dbs:
 	php artisan migrate:fresh --seed
-
-test:
-	vendor/bin/phpunit
